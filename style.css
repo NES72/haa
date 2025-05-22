@@ -59,6 +59,7 @@ button {
 
 button:hover {
   background-color: #11344b;
+  
 }
 
 .botones {
@@ -79,118 +80,4 @@ button:hover {
   margin-top: 10px;
   max-width: 200px;
   border-radius: 6px;
-}
-
-/* Añadir estilos móviles */
-@media (max-width: 768px) {
-  .contenedor {
-    padding: 10px;
-  }
-  
-  #camara {
-    height: 50vh;
-    object-fit: cover;
-  }
-  
-  .botones button {
-    flex: 1 1 45%;
-    font-size: 0.9em;
-    padding: 8px;
-  }
-}
-
-/* Mejorar visibilidad de la cámara */
-#camara {
-  width: 100%;
-  background: #000;
-  transform: scaleX(-1); /* Espejar imagen */
-  display: none; /* Ocultar hasta activar */
-}
-
-#activar-camara {
-  width: 100%;
-  padding: 15px;
-  margin-bottom: 10px;
-}
-
-/* Añadir estilos para el contenedor de vistas previas */
-.previews-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(100px, 1fr)); /* Columnas responsivas */
-  gap: 10px; /* Espacio entre los elementos */
-  margin-top: 10px;
-}
-
-.previews-grid img,
-.previews-grid video {
-  max-width: 100%;
-  height: auto;
-  object-fit: cover;
-  border-radius: 8px;
-  cursor: pointer; /* Para indicar que son clickeables */
-}
-
-/* Estilos para el modal flotante */
-.modal {
-  display: none; /* Oculto por defecto */
-  position: fixed; /* Permanece en la misma posición al hacer scroll */
-  z-index: 1; /* Sitúa el modal encima de todo */
-  left: 0;
-  top: 0;
-  width: 100%; /* Ancho completo */
-  height: 100%; /* Alto completo */
-  overflow: auto; /* Habilita el scroll si el contenido es demasiado grande */
-  background-color: rgba(0,0,0,0.7); /* Fondo semi-transparente oscuro */
-  display: flex; /* Usar flexbox para centrar el contenido */
-  justify-content: center; /* Centrar horizontalmente */
-  align-items: center; /* Centrar verticalmente */
-}
-
-.modal-content {
-  background-color: #fefefe;
-  margin: auto; /* Margen automático para centrar (si no se usa flex) */
-  padding: 20px;
-  border: 1px solid #888;
-  border-radius: 12px;
-  width: 90%; /* Ancho del contenido del modal */
-  max-width: 700px; /* Ancho máximo del contenido del modal */
-  position: relative; /* Para posicionar el botón de cerrar */
-  box-shadow: 0 5px 15px rgba(0,0,0,0.3);
-  height: 40vh; /* Altura del 40% del viewport height */
-  display: flex; /* Para el video dentro del modal */
-  justify-content: center;
-  align-items: center;
-}
-
-/* Ajustes específicos para el video dentro del modal */
-#modal-video-player {
-  width: 100%;
-  height: 100%;
-  object-fit: contain; /* Asegura que el video se ajuste sin recortarse */
-}
-
-/* Botón de cerrar */
-.close-button {
-  color: #aaa;
-  position: absolute;
-  top: 10px;
-  right: 20px;
-  font-size: 28px;
-  font-weight: bold;
-  cursor: pointer;
-}
-
-.close-button:hover,
-.close-button:focus {
-  color: black;
-  text-decoration: none;
-  cursor: pointer;
-}
-
-/* Estilos para el contenedor del mapa */
-.map-container {
-  width: 100%;
-  height: 100%; /* Ocupa el 100% de la altura de su padre (modal-content) */
-  border-radius: 8px;
-  overflow: hidden; /* Asegura que el mapa no se desborde */
 }
