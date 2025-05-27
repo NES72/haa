@@ -25,6 +25,23 @@ h1, h2 {
   box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
 }
 
+/* Estilos para la sección de la cámara para centrar el video */
+#seccion-media {
+  display: flex;
+  flex-direction: column; /* Apila los elementos verticalmente */
+  align-items: center;   /* Centra horizontalmente los elementos hijos */
+  justify-content: center; /* Centra verticalmente si hay espacio */
+}
+
+video#camara {
+  max-width: 100%; /* Asegura que el video no se desborde */
+  height: auto;    /* Mantiene la relación de aspecto */
+  display: block;  /* Elimina el espacio extra debajo del video */
+  margin: 0 auto;  /* Centra el video si su ancho es menor que el contenedor */
+  border-radius: 8px;
+  margin-top: 10px;
+}
+
 /* Estilos para los elementos de medios dentro del contenedor de vista previa */
 .media-grid {
   display: flex;
