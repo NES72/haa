@@ -1,55 +1,115 @@
+// Obtener referencias a los elementos del DOM
 const camara = document.getElementById("camara");
 const botonFoto = document.getElementById("boton-foto");
 const botonGrabar = document.getElementById("boton-iniciar-video");
 const botonDetener = document.getElementById("boton-detener-video");
 const lienzo = document.getElementById("lienzo");
-const fotoPrevia = document.getElementById("foto-previa");
-const videoPrevio = document.getElementById("video-previo");
+const mediaPreviewContainer = document.getElementById("media-preview-container"); // Nuevo contenedor para múltiples medios
 
 const botonUbicacion = document.getElementById("boton-ubicacion");
-const ubicacionTexto = document.getElementById("ubicacion-texto"); // Este elemento mostrará el texto y el mapa
+const ubicacionTexto = document.getElementById("ubicacion-texto");
 
 const botonEnviar = document.getElementById("boton-enviar");
 const listaReportes = document.getElementById("lista-reportes");
 
+const customMessageBox = document.getElementById("custom-message-box");
+const customMessageText = document.getElementById("custom-message-text");
+const customMessageCloseButton = document.getElementById("custom-message-close");
+
+// Variables de estado
 let stream = null;
 let mediaRecorder = null;
 let partesVideo = [];
-let fotoBase64 = null;
-let videoURL = null;
+let mediaItems = []; // Array para almacenar múltiples fotos/videos
 let ubicacionActual = null;
 
-// Activar cámara
-navigator.mediaDevices.getUserMedia({ video: true, audio: true }).then(s => {
-  stream = s;
-  camara.srcObject = stream;
-}).catch(err => {
-  console.error("Error al acceder a la cámara o micrófono:", err);
-  alert("No se pudo acceder a la cámara o micrófono. Asegúrate de dar permisos.");
+// Función para mostrar mensajes personalizados en lugar de alert()
+function displayMessage(message, type = "info") {
+  customMessageText.textContent = message;
+  customMessageBox.classList.remove("hidden");
+  // Puedes añadir clases para diferentes tipos de mensajes (éxito, error, etc.)
+  // customMessageBox.classList.add(type);
+}
+
+// Event listener para cerrar el cuadro de mensaje personalizado
+customMessageCloseButton.addEventListener("click", () => {
+  customMessageBox.classList.add("hidden");
+  // customMessageBox.classList.remove("error", "info", "success"); // Limpiar clases de tipo
 });
+
+// Activar cámara (prioriza la trasera, con fallback a la frontal)
+function startCamera() {
+  // Intentar acceder a la cámara trasera (environment)
+  navigator.mediaDevices.getUserMedia({
+    video: {
+      facingMode: { exact: "environment" }
+    },
+    audio: true
+  })
+  .then(s => {
+    stream = s;
+    camara.srcObject = stream;
+  })
+  .catch(err => {
+    console.warn("Error al acceder a la cámara trasera, intentando la frontal:", err);
+    // Si falla la trasera, intentar la frontal (user)
+    navigator.mediaDevices.getUserMedia({
+      video: { facingMode: "user" },
+      audio: true
+    })
+    .then(s => {
+      stream = s;
+      camara.srcObject = stream;
+    })
+    .catch(err2 => {
+      console.error("Error al acceder a cualquier cámara o micrófono:", err2);
+      displayMessage("No se pudo acceder a la cámara o micrófono. Asegúrate de dar permisos.", "error");
+    });
+  });
+}
+
+// Iniciar la cámara al cargar la página
+window.onload = startCamera;
+
+// Función para actualizar la vista previa de los medios
+function updateMediaPreview() {
+  mediaPreviewContainer.innerHTML = ""; // Limpiar el contenedor
+  mediaItems.forEach((item, index) => {
+    if (item.type === 'image') {
+      const img = document.createElement("img");
+      img.src = item.src;
+      img.alt = `Foto adjunta ${index + 1}`;
+      mediaPreviewContainer.appendChild(img);
+    } else if (item.type === 'video') {
+      const vid = document.createElement("video");
+      vid.src = item.src;
+      vid.controls = true;
+      vid.alt = `Video adjunto ${index + 1}`;
+      mediaPreviewContainer.appendChild(vid);
+    }
+  });
+}
 
 // Tomar Foto
 botonFoto.addEventListener("click", () => {
   if (!stream) {
-    alert("Cámara no disponible. Asegúrate de dar permisos.");
+    displayMessage("Cámara no disponible. Asegúrate de dar permisos.", "error");
     return;
   }
   const contexto = lienzo.getContext("2d");
   lienzo.width = camara.videoWidth;
   lienzo.height = camara.videoHeight;
   contexto.drawImage(camara, 0, 0, lienzo.width, lienzo.height);
-  fotoBase64 = lienzo.toDataURL("image/png");
-  videoURL = null; // Limpiar video si se toma una foto
-
-  fotoPrevia.src = fotoBase64;
-  fotoPrevia.hidden = false;
-  videoPrevio.hidden = true;
+  const fotoBase64 = lienzo.toDataURL("image/png");
+  
+  mediaItems.push({ type: 'image', src: fotoBase64 });
+  updateMediaPreview(); // Actualizar la vista previa
 });
 
 // Grabar Video
 botonGrabar.addEventListener("click", () => {
   if (!stream) {
-    alert("Cámara o micrófono no disponible. Asegúrate de dar permisos.");
+    displayMessage("Cámara o micrófono no disponible. Asegúrate de dar permisos.", "error");
     return;
   }
   partesVideo = [];
@@ -57,12 +117,10 @@ botonGrabar.addEventListener("click", () => {
   mediaRecorder.ondataavailable = e => partesVideo.push(e.data);
   mediaRecorder.onstop = () => {
     const blob = new Blob(partesVideo, { type: "video/webm" });
-    videoURL = URL.createObjectURL(blob);
-    fotoBase64 = null; // Limpiar foto si se graba un video
-
-    videoPrevio.src = videoURL;
-    videoPrevio.hidden = false;
-    fotoPrevia.hidden = true;
+    const videoURL = URL.createObjectURL(blob);
+    
+    mediaItems.push({ type: 'video', src: videoURL });
+    updateMediaPreview(); // Actualizar la vista previa
   };
 
   mediaRecorder.start();
@@ -145,11 +203,11 @@ botonEnviar.addEventListener("click", (event) => {
   event.preventDefault();
 
   const nombre = document.getElementById("nombre").value.trim();
-  const correo = document.getElementById("correo").value.trim();
   const descripcion = document.getElementById("descripcion").value.trim();
 
-  if (!nombre || !correo || !descripcion) {
-    alert("Por favor llena todos los campos del formulario.");
+  // Se ha eliminado la validación del correo electrónico
+  if (!nombre || !descripcion) {
+    displayMessage("Por favor, llena todos los campos obligatorios (Nombre y Descripción).", "error");
     return;
   }
 
@@ -157,7 +215,7 @@ botonEnviar.addEventListener("click", (event) => {
   const targetPhoneNumber = "59172946353"; 
 
   let whatsappMessage = `*Nuevo Reporte Recibido*\n`;
-  whatsappMessage += `De: ${nombre} (${correo})\n`;
+  whatsappMessage += `De: ${nombre}\n`; // Se ha eliminado el correo
   whatsappMessage += `Descripción: ${descripcion}\n`;
 
   if (ubicacionActual) {
@@ -170,8 +228,8 @@ botonEnviar.addEventListener("click", (event) => {
   }
 
   // Nota sobre la media, ya que no se puede adjuntar directamente con este método
-  if (fotoBase64 || videoURL) {
-      whatsappMessage += `\n*Nota: Se adjuntó una foto/video en el formulario web. Por favor, revisa la aplicación para ver los detalles completos.*`;
+  if (mediaItems.length > 0) {
+      whatsappMessage += `\n*Nota: Se adjuntaron ${mediaItems.length} foto(s)/video(s) en el formulario web. Por favor, revisa la aplicación para ver los detalles completos.*`;
   }
 
   // Codificar el mensaje para la URL (maneja caracteres especiales)
@@ -185,33 +243,32 @@ botonEnviar.addEventListener("click", (event) => {
 
   // --- Mantener la lógica existente para agregar el reporte a la lista local ---
   const li = document.createElement("li");
-  li.textContent = `${nombre} - ${correo} - ${descripcion} - ${ubicacionActual || "Sin ubicación"}`;
+  li.innerHTML = `<strong>${nombre}</strong><br>Descripción: ${descripcion}<br>Ubicación: ${ubicacionActual || "Sin ubicación"}`; // Se ha eliminado el correo
 
-  if (fotoBase64) {
-    const img = document.createElement("img");
-    img.src = fotoBase64;
-    img.width = 150;
-    li.appendChild(document.createElement("br"));
-    li.appendChild(img);
-  } else if (videoURL) {
-    const vid = document.createElement("video");
-    vid.src = videoURL;
-    vid.controls = true;
-    vid.width = 150;
-    li.appendChild(document.createElement("br"));
-    li.appendChild(vid);
-  }
+  mediaItems.forEach(item => {
+    if (item.type === 'image') {
+      const img = document.createElement("img");
+      img.src = item.src;
+      img.width = 150;
+      li.appendChild(document.createElement("br"));
+      li.appendChild(img);
+    } else if (item.type === 'video') {
+      const vid = document.createElement("video");
+      vid.src = item.src;
+      vid.controls = true;
+      vid.width = 150;
+      li.appendChild(document.createElement("br"));
+      li.appendChild(vid);
+    }
+  });
 
   listaReportes.appendChild(li);
 
   // Limpiar campos después de generar el enlace de WhatsApp y agregar a la lista local
   document.getElementById("nombre").value = "";
-  document.getElementById("correo").value = "";
   document.getElementById("descripcion").value = "";
-  fotoPrevia.hidden = true;
-  videoPrevio.hidden = true;
-  ubicacionTexto.textContent = ""; // Limpiar texto y mapa de la ubicación
-  fotoBase64 = null;
-  videoURL = null;
+  ubicacionTexto.innerHTML = ""; // Limpiar texto y mapa de la ubicación
   ubicacionActual = null;
+  mediaItems = []; // Limpiar el array de medios
+  updateMediaPreview(); // Limpiar la vista previa
 });

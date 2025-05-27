@@ -25,10 +25,22 @@ h1, h2 {
   box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
 }
 
-video, img {
-  max-width: 100%;
-  border-radius: 8px;
+/* Estilos para los elementos de medios dentro del contenedor de vista previa */
+.media-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px; /* Espacio entre las imágenes/videos */
+  justify-content: center; /* Centrar los elementos */
   margin-top: 10px;
+}
+
+.media-grid img,
+.media-grid video {
+  max-width: 150px; /* Tamaño máximo para cada elemento en la cuadrícula */
+  height: auto;
+  border-radius: 8px;
+  object-fit: cover; /* Asegura que la imagen/video cubra el área sin distorsión */
+  border: 2px solid #011a33; /* Borde para destacar */
 }
 
 input, textarea {
@@ -55,11 +67,11 @@ button {
   border-radius: 8px;
   cursor: pointer;
   transition: background-color 0.3s ease;
+  border: none; /* Eliminar el borde predeterminado */
 }
 
 button:hover {
   background-color: #11344b;
-  
 }
 
 .botones {
@@ -74,10 +86,50 @@ button:hover {
   padding: 10px;
   background-color: #e6faff;
   border-radius: 6px;
+  list-style: none; /* Eliminar viñetas de la lista */
 }
 
 #lista-reportes img, #lista-reportes video {
   margin-top: 10px;
   max-width: 200px;
   border-radius: 6px;
+}
+
+/* Estilos para el cuadro de mensaje personalizado */
+.message-box {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background-color: #fff;
+  padding: 20px;
+  border-radius: 12px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+  z-index: 1000;
+  text-align: center;
+  max-width: 300px;
+  border: 2px solid #30536b;
+}
+
+.message-box.hidden {
+  display: none;
+}
+
+.message-box p {
+  margin-bottom: 15px;
+  font-size: 1.1em;
+  color: #333;
+}
+
+.message-box button {
+  background-color: #30536b;
+  color: white;
+  padding: 8px 15px;
+  border-radius: 6px;
+  cursor: pointer;
+  border: none;
+}
+
+.message-box button:hover {
+  background-color: #11344b;
 }

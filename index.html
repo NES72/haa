@@ -13,7 +13,7 @@
     <h2>¿Tienes algun reporte relevante?...Rellena los siguientes datos</h2>
 
     <section id="seccion-media" class="card">
-      <p>Envianos una foto o video:</p>
+      <p>Envíanos una foto o video:</p>
       <video id="camara" autoplay></video>
       <div class="botones">
         <button id="boton-foto">📷 Tomar Foto</button>
@@ -23,22 +23,19 @@
     </section>
 
     <section class="vista-previa card">
-      <p>Vista previa:</p>
-      <img id="foto-previa" hidden />
-      <video id="video-previo" controls hidden></video>
+      <p>Vista previa de medios adjuntos:</p>
+      <div id="media-preview-container" class="media-grid">
+        </div>
     </section>
 
     <section id="formulario-reporte" class="card">
-      <h2>Formulario de envio</h2>
+      <h2>Formulario de envío</h2>
       <form id="formulario">
         <label for="nombre">Nombre</label>
         <input type="text" id="nombre" name="nombre" placeholder="Tu nombre" required />
     
-        <label for="correo">Correo electrónico</label>
-        <input type="email" id="correo" name="correo" placeholder="tucorreo@ejemplo.com" required />
-    
         <label for="descripcion">Descripción del reporte</label>
-        <textarea id="descripcion" name="descripcion" rows="4" placeholder="¿Qué ocurrió?" required></textarea>
+        <textarea id="descripcion" name="descripcion" rows="4" placeholder="¿Qué ocurrió? o ¿Qué quieres reportar?" required></textarea>
     
         <button type="button" id="boton-ubicacion">Enviar Ubicación Actual</button>
         <p id="ubicacion-texto"></p>
@@ -55,6 +52,11 @@
   </div>
 
   <canvas id="lienzo" hidden></canvas>
+
+  <div id="custom-message-box" class="message-box hidden">
+    <p id="custom-message-text"></p>
+    <button id="custom-message-close">Cerrar</button>
+  </div>
 
   <script src="script.js"></script>
 </body>
